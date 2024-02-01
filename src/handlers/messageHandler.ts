@@ -2,12 +2,11 @@ import { EmbedBuilder, Message } from "discord.js";
 import { ServerValue } from "firebase-admin/database";
 import { checkIsOP } from "../actions/checkIsOP.action";
 import { generateAllowedMentions } from "../actions/generateAllowedMentions.action";
-import { areNotImages, doBotTriggeredAltText, doBotTriggeredTranscription, fail, getParent, hasAttachments, isAudioMessage, isMissingAltText, isReply, userHasAutoModeEnabled, wasPostedByBot } from "../misc/messageHandlerHelper";
-import { AutoMode, expiry } from "../misc/misc";
-import { db, leaderboards } from "../raiha";
+import { areNotImages, doBotTriggeredAltText, doBotTriggeredTranscription, fail, getParent, hasAttachments, isAudioMessage, isMissingAltText, isReply, wasPostedByBot } from "../misc/messageHandlerHelper";
+import { expiry } from "../misc/misc";
+import { db, leaderboards } from "../altbot";
 import { informNewUser } from "../actions/informNewUser.action";
 import { remindUser } from "../actions/remindUser.action";
-import { informNewAutoModeOptOut } from "../actions/informNewAutoModeOptOut";
 import { urlCheck } from "../actions/urlCheck.action";
 import { urlCheckWarning } from "../actions/urlCheckWarning.action";
 import { urlCheckLoserboard } from "../actions/urlCheckLoserboard.action";
@@ -48,7 +47,7 @@ export async function handleMessage(msg: Message<true>) {
 
 async function botCallBranch(msg: Message<true>, triggerData: Trigger) {
   // Has attachments - Self trigger mode
-  if (hasAttachments(msg)) return await doBotTriggeredAltText(msg, msg, false, triggerData);
+  if (hasAttachments(msg)) return await doBotTriggeredAltText(msg, msg, triggerData);
   // No attachments
   // Starts with trigger but is not a reply - fail
   if (triggerData.position == 0 && !isReply(msg)) return await fail('ERR_NOT_REPLY', msg, false);
@@ -57,7 +56,7 @@ async function botCallBranch(msg: Message<true>, triggerData: Trigger) {
   // Reply trigger mode
   const parent = await getParent(msg);
   if (!hasAttachments(parent)) return await fail('ERR_NOT_REPLY', msg, false);
-  return await doBotTriggeredAltText(msg, parent, false, triggerData);
+  return await doBotTriggeredAltText(msg, parent, triggerData);
 }
 
 async function noBotCallBranch(msg: Message<true>) {
@@ -68,13 +67,6 @@ async function noBotCallBranch(msg: Message<true>) {
   if (!hasAttachments(msg)) return;
 
   if (isMissingAltText(msg)) {
-    const autoModeMode = userHasAutoModeEnabled(msg.author.id);
-    if ([AutoMode.ON, AutoMode.IMPLICIT].includes(autoModeMode)) {
-      if (autoModeMode == AutoMode.ON || (leaderboards.Configuration[msg.guild.id].autoModeOptOut && autoModeMode == AutoMode.IMPLICIT)) {
-        await informNewAutoModeOptOut(msg);
-        return await doBotTriggeredAltText(msg, msg, true, NoTrigger);
-      }
-    }
     await informNewUser(msg);
     await remindUser(msg);
     return await fail('ERR_MISSING_ALT_TEXT', msg, true);
@@ -94,9 +86,9 @@ async function deleteTriggerBranch(msg: Message<true>, parent: Message<true>, tr
     await parent.delete().catch(() => {/* TODO: something here */ })
     await msg.delete().catch(() => {/* TODO: something here */ })
   } else {
-    responseText = 'You are not the author of this message, or this message is not a Raiha message.';
+    responseText = 'You are not the author of this message, or this message is not an AltBot message.';
     const embed = new EmbedBuilder()
-      .setTitle(`Raiha Message Delete`)
+      .setTitle(`AltBot Message Delete`)
       .setDescription(expiry(responseText, 10))
       .setColor(0xd797ff);
     await msg.reply({ embeds: [embed], allowedMentions: generateAllowedMentions() })

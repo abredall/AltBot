@@ -1,6 +1,6 @@
 import { EmbedBuilder, Message } from "discord.js"
 import { expiry, reminderText } from "../misc/misc";
-import { leaderboards } from '../raiha';
+import { leaderboards } from '../altbot';
 
 export async function remindUser(originalMessage: Message<boolean>) {
   const expireTime = 15;

@@ -1,15 +1,12 @@
 import { Attachment, EmbedBuilder, Message } from "discord.js";
 import { ServerValue } from "firebase-admin/database";
 import { activationFailure } from "../actions/activationFailure.action";
-import { generateAIDescription } from "../actions/generateAIDescription.action";
 import { generateAllowedMentions } from "../actions/generateAllowedMentions.action";
 import { getMentions } from "../actions/getMentions.action";
 import { react } from "../actions/react.action";
 import { sendError } from "../actions/sendError.action";
-import { CLIENT, db, leaderboards } from "../raiha";
+import { CLIENT, db, leaderboards } from "../altbot";
 import { AiResult, Trigger } from "./types";
-import { Gpt } from "../actions/gpt.action";
-import { AutoMode } from "./misc";
 import { Whisper } from "../actions/whisper.action";
 var parseSRT = require('parse-srt');
 const { getAudioDurationInSeconds } = require('get-audio-duration')
@@ -101,62 +98,7 @@ export async function applyAltText(msg: Message<true>, altTexts: string[], trigg
       override = triggerData.override.value;
 
   for (let attachment of msg.attachments) {
-    if (altTexts[index].trim() == "$$") {
-      if (attachment[1].contentType == "image/gif") {
-        const gifResult: AiResult = { desc: "gif", ocr: "" }
-        altTextResults.push(gifResult);
-        altTexts[index] = gifResult.desc;
-      } else {
-        const imageUrl = attachment[1].url;
-        const openaiEnabled = leaderboards.Configuration[msg.guild.id].openai;
-        let ai: AiResult;
-        if (openaiEnabled) {
-          if (!override || (override && override == 'gpt'))
-            ai = { desc: await Gpt(imageUrl) ?? "", ocr: "" }
-          else
-            ai = await generateAIDescription(imageUrl, true, false);
-        } else {
-          ai = await generateAIDescription(imageUrl, true, false);
-        }
-        const desc = ai.desc;
-        altTextResults.push(ai);
-        altTexts[index] = desc.substring(0, 1000);
-      }
-    }
-    else if (altTexts[index].trim() == "$$ocr") {
-      if (attachment[1].contentType == "image/gif") {
-        const gifResult: AiResult = { desc: "gif", ocr: "" }
-        altTextResults.push(gifResult);
-        altTexts[index] = gifResult.desc;
-      } else {
-        const imageUrl = attachment[1].url;
-        const openaiEnabled = leaderboards.Configuration[msg.guild.id].openai;
-        let ai: AiResult;
-        if (openaiEnabled) {
-          if (!override || (override && override == 'gpt'))
-            ai = { desc: await Gpt(imageUrl) ?? "", ocr: "" }
-          else
-          ai = await generateAIDescription(imageUrl, true, true);
-        } else {
-          ai = await generateAIDescription(imageUrl, true, true);
-        }
-        altTextResults.push(ai);
-        const desc = ai.ocr.length > 0 ? `${ai.desc}: ${ai.ocr}`.replace('\n', ' \n') : ai.desc;
-        altTextResults.push(ai);
-        altTexts[index] = desc.substring(0, 1000);
-      }
-    }
-    else if (altTexts[index].trim().endsWith("$$ocr")) {
-      if (attachment[1].contentType != "image/gif") {
-        const imageUrl = attachment[1].url;
-        const ai = await generateAIDescription(imageUrl, false, true);
-        altTextResults.push(ai);
-        const desc = ai.ocr;
-        altTexts[index] = (altTexts[index].replace(/\s\$\$ocr|\$\$ocr/, `: ${desc}`)).substring(0, 1000); // regex matches " $$ocr" and "$$ocr"
-      }
-    } else {
-      altTextResults.push({ desc: altTexts[index], ocr: "" });
-    }
+    altTextResults.push({ desc: altTexts[index], ocr: "" });
     attachment[1].description = altTexts[index++];
     fixedFiles.push(attachment[1]);
   }
@@ -168,38 +110,6 @@ export async function applyAltText(msg: Message<true>, altTexts: string[], trigg
  */
 export function bumpStats() {
   db.ref(`/Statistics/`).child('Requests').set(ServerValue.increment(1));
-}
-
-/**
- * Check if the user has Auto Mode enabled
- * @param id Author ID
- * @returns True if Auto Mode is enabled
- */
-export function userHasAutoModeEnabled(id: string): AutoMode {
-  let user =  leaderboards.UserSettings?.[id];
-  if (user == undefined) return AutoMode.IMPLICIT;
-  let amSetting = user.AutoMode;
-  if (amSetting == undefined) return AutoMode.IMPLICIT;
-  
-  return amSetting ? AutoMode.ON : AutoMode.OFF;
-}
-
-/**
- * Generate auto mode
- * @param message Incoming message to check
- */
-export function autoModeGenerator(message: Message<true>): string[] {
-  let altTexts: string[] = [];
-  for (let attachment of message.attachments) {
-    let file = attachment[1];
-    if (!file.contentType?.startsWith('image')) altTexts.push('-');
-    if (file.description === null || file.description === undefined || file.description.trim() === '') {
-      altTexts.push('$$ocr');
-    } else {
-      altTexts.push(file.description);
-    }
-  }
-  return altTexts;
 }
 
 /**
@@ -240,14 +150,14 @@ export async function doBotTriggeredTranscription(cmdMsg: Message<true>, audioMs
 
     if (file.size > (25 * 1000000)) {
       await cmdMsg.react('❌');
-      cmdMsg.reply({ content: `Sorry, but this file is too big. Raiha can only transcribe files up to 25 MB. (${file.size / 1000000})`, allowedMentions: generateAllowedMentions() });
+      cmdMsg.reply({ content: `Sorry, but this file is too big. AltBot can only transcribe files up to 25 MB. (${file.size / 1000000})`, allowedMentions: generateAllowedMentions() });
       return;
     }
 
     const dur = await getAudioDurationInSeconds(file.url);
     if (dur > (5 * 60)) {
       await cmdMsg.react('❌');
-      cmdMsg.reply({ content: `Sorry, but this file is too long. Raiha can only transcribe files up to 5 minutes long. (${dur / 60})`, allowedMentions: generateAllowedMentions() });
+      cmdMsg.reply({ content: `Sorry, but this file is too long. AltBot can only transcribe files up to 5 minutes long. (${dur / 60})`, allowedMentions: generateAllowedMentions() });
       return;
     }
 
@@ -284,9 +194,8 @@ export async function doBotTriggeredTranscription(cmdMsg: Message<true>, audioMs
  * Generate alt text & Repost
  * @param cmdMsg Message initiating the procedure
  * @param imgMsg Message containing the images
- * @param auto Whether Auto Mode is to be used
  */
-export async function doBotTriggeredAltText(cmdMsg: Message<true>, imgMsg: Message<true>, auto: boolean, triggerData: Trigger) {
+export async function doBotTriggeredAltText(cmdMsg: Message<true>, imgMsg: Message<true>, triggerData: Trigger) {
   const inline = (cmdMsg.id === imgMsg.id);
   const altAuthor = cmdMsg.author.id;
   const opAuthor = imgMsg.author.id;
@@ -294,8 +203,7 @@ export async function doBotTriggeredAltText(cmdMsg: Message<true>, imgMsg: Messa
   let altTexts: string[] = [];
   if (inline) await react(imgMsg, 'ERR_MISSING_ALT_TEXT'); // For good measure
   
-  if (auto) altTexts = autoModeGenerator(imgMsg);
-  else altTexts = parseAltText(triggerData);
+  altTexts = parseAltText(triggerData);
 
   for (let alt of altTexts) {
     if (alt.trim().length === 0) return await fail('ERR_MISMATCH', cmdMsg, inline);
@@ -335,10 +243,7 @@ export async function doBotTriggeredAltText(cmdMsg: Message<true>, imgMsg: Messa
   } else {
     // Inline
     // 
-    if (auto && triggerData.position <= 0)
-      repostContent = `_From <@${imgMsg.author.id}>${imgMsg.content.trim().length > 0 ? ':_\n\n' + imgMsg.content.trim() : '._'}`
-    else
-      repostContent = `_From <@${imgMsg.author.id}>${triggerData.position > 0 ? ':_\n\n' + imgMsg.content.substring(0, triggerData.position) : '._'}`
+    repostContent = `_From <@${imgMsg.author.id}>${triggerData.position > 0 ? ':_\n\n' + imgMsg.content.substring(0, triggerData.position) : '._'}`
   }
 
   if (pimbmMessage.length > 0) repostContent = repostContent + `\n\n${pimbmMessage}`;
@@ -374,7 +279,7 @@ export async function doBotTriggeredAltText(cmdMsg: Message<true>, imgMsg: Messa
     Body: body
   };
   db.ref(`/Actions/${cmdMsg.guild!.id}/${cmdMsg.channel!.id}/`).child(sentMsg.id).set(msgData);
-  db.ref(`/Leaderboard/Raiha/${cmdMsg.guild!.id}`).child(altAuthor).set(ServerValue.increment(1));
+  db.ref(`/Leaderboard/AltBot/${cmdMsg.guild!.id}`).child(altAuthor).set(ServerValue.increment(1));
   if (!inline && altAuthor === opAuthor && leaderboards['Loserboard'][cmdMsg.guild!.id][opAuthor] != 0) {
     // Decrement from the loserboard if they call on themselves after the fact
     db.ref(`/Leaderboard/Loserboard/${cmdMsg.guild!.id}`).child(altAuthor).set(ServerValue.increment(-1));

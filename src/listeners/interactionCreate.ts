@@ -3,7 +3,7 @@ import { ServerValue } from "firebase-admin/database";
 import { postLeaderboard, postLoserboard, postRank } from '../misc/leaderboards';
 import { generateAllowedMentions } from "../actions/generateAllowedMentions.action";
 import { expiry, whyText } from '../misc/misc';
-import { VERSION, db, leaderboards } from '../raiha';
+import { VERSION, db, leaderboards } from '../altbot';
 import { checkIsOP } from "../actions/checkIsOP.action";
 import { HelpEmbedMap, HelpSelections } from '../misc/help';
 
@@ -115,16 +115,12 @@ export default async function (interaction: any) {
         ref = db.ref(`/UserSettings/${user.id}`).child('ActivationFailure');
         ref.set(specifiedOption);
           break;
-      case 'AutoMode':
-        ref = db.ref(`/UserSettings/${user.id}`).child('AutoMode');
-        ref.set(specifiedOption);
-          break;
       default:
         break;
     }
 
     const embed = new EmbedBuilder()
-      .setTitle(`Raiha User Settings`)
+      .setTitle(`AltBot User Settings`)
       .setDescription(`Set ${specifiedSetting} to ${specifiedOption}.`)
       .setColor(0xd797ff);
     await interaction.editReply({ embeds: [embed], allowedMentions: generateAllowedMentions() });
@@ -175,9 +171,9 @@ export default async function (interaction: any) {
 
   if (commandName === 'about') {
     const embed = new EmbedBuilder()
-      .setTitle(`Raiha Accessibility Bot`)
-      .setDescription(`Version: ${VERSION}\nAuthor: <@248600185423396866>`)
-      .setURL(`https://github.com/9vult/Raiha`)
+      .setTitle(`AltBot Accessibility Bot`)
+      .setDescription(`Version: ${VERSION}\nAuthor: <@177227281129930752>`)
+      .setURL(`https://github.com/abredall/AltBot`)
       .setColor(0xd797ff);
     await interaction.reply({ embeds: [embed], allowedMentions: generateAllowedMentions() });
     return;

@@ -1,5 +1,5 @@
 import { Message, User } from "discord.js";
-import { db } from '../raiha';
+import { db } from '../altbot';
 
 export async function checkIsOP(message: Message<boolean>, caller: User) {
   const messageID = message.id;

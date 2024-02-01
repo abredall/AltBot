@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { sendError } from "./sendError.action";
-import { leaderboards } from '../raiha';
+import { leaderboards } from '../altbot';
 
 export async function react(message: Message<true>, reaction: string) {
   const config = leaderboards.Configuration;

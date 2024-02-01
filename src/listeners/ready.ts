@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { CLIENT } from '../raiha';
+import { CLIENT } from '../altbot';
 
 export default function() {
   if (!CLIENT.user || !CLIENT.application) return;
@@ -39,7 +39,7 @@ export default function() {
 
   const helpCmd = new SlashCommandBuilder()
   .setName('help')
-  .setDescription('Raiha short help');
+  .setDescription('AltBot short help');
 
   const whyCmd = new SlashCommandBuilder()
   .setName('why')
@@ -47,7 +47,7 @@ export default function() {
 
   const aboutCmd = new SlashCommandBuilder()
   .setName('about')
-  .setDescription('About Raiha');
+  .setDescription('About AltBot');
 
   const altRulesCmd = new SlashCommandBuilder()
   .setName('altrules')
@@ -66,7 +66,7 @@ export default function() {
     .setRequired(true)
     .addChoices(
       { name: 'Native', value: 'Native' },
-      { name: 'Raiha', value: 'Raiha' },
+      { name: 'AltBot', value: 'AltBot' },
       { name: 'Loserboard', value: 'Loserboard' }
     )
   ).addNumberOption(opt =>
@@ -86,7 +86,7 @@ export default function() {
 
   const userSettingCmd = new SlashCommandBuilder()
     .setName('usersetting')
-    .setDescription('Raiha user settings')
+    .setDescription('AltBot user settings')
     .addStringOption(opt =>
       opt.setName('setting')
       .setDescription('Setting to set')
@@ -94,7 +94,6 @@ export default function() {
       .setChoices(
         { name: 'Reminder', value: 'Reminder' },
         { name: 'Activation Failure', value: 'ActivationFailure' },
-        { name: 'Auto', value: 'AutoMode' }
       )
     ).addStringOption(opt =>
       opt.setName('option')
@@ -116,6 +115,6 @@ export default function() {
     CLIENT.application.commands.create(setCmd);
     CLIENT.application.commands.create(userSettingCmd);
 
-  console.log('Raiha is ready to go!');
+  console.log('AltBot is ready to go!');
 };
 

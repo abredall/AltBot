@@ -1,5 +1,5 @@
 import { EmbedBuilder, TextChannel } from "discord.js";
-import { CLIENT, leaderboards } from "../raiha";
+import { CLIENT, leaderboards } from "../altbot";
 import { Leaderboard } from 'src/misc/types';
 
 export async function loserboardNotify(incoming: Record<string, Leaderboard>) {

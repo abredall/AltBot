@@ -1,5 +1,5 @@
 import { EmbedBuilder, TextChannel } from "discord.js";
-import { CLIENT, leaderboards } from "../raiha";
+import { CLIENT, leaderboards } from "../altbot";
 
 export async function sendError(guildId: string, errorTitle: string, errorBody: string, authorId: string|number, url: string) {
   let chan = leaderboards.Configuration[guildId].errorChannel;

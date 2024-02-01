@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { NoTrigger, Trigger, TriggerOverride, TriggerType } from "../misc/types";
-import { leaderboards } from "../raiha";
+import { leaderboards } from "../altbot";
 
 export default function parseTriggers(msg: Message<true>): Trigger {
   let lc = msg.content.toLowerCase();

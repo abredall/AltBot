@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { ServerValue } from "firebase-admin/database";
-import { db, leaderboards } from "../raiha";
+import { db, leaderboards } from "../altbot";
 
 export async function urlCheckLoserboard(msg: Message<true>) {
   let loser = leaderboards.Configuration[msg.guild!.id].linkedImageLoserboard;

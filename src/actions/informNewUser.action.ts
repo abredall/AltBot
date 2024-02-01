@@ -1,14 +1,14 @@
 import { EmbedBuilder, Message } from "discord.js"
 import { expiry, hintText } from "../misc/misc";
-import { leaderboards } from '../raiha';
+import { leaderboards } from '../altbot';
 
 export async function informNewUser(originalMessage: Message<true>) {
   const expireTime = 60;
   const { author: { id: op }, guild: { id: server } } = originalMessage;
-  const { Raiha, Configuration } = leaderboards;
+  const { AltBot, Configuration } = leaderboards;
   const serverGreenThreshold = Configuration[server].greenThreshold ?? 0;
 
-  if (!Raiha[server]?.[op] || Raiha[server][op] <= serverGreenThreshold) {
+  if (!AltBot[server]?.[op] || AltBot[server][op] <= serverGreenThreshold) {
     const embed = new EmbedBuilder()
       .setTitle("Alt Text Help")
       .setDescription(expiry(hintText, expireTime))

@@ -23,19 +23,17 @@ export interface Configuration {
   placeInMessageBodyMode: "off" | string,
   disabledTriggers: string[] | undefined,
   openai: boolean,
-  autoModeOptOut: boolean,
   linkedImageLoserboard: boolean
 }
 
 export interface UserSettings {
   Reminder: boolean,
   ActivationFailure: boolean,
-  AutoMode: boolean
-} 
+}
 
 export interface Data {
   Native: Record<string, Leaderboard>
-  Raiha: Record<string, Leaderboard>
+  AltBot: Record<string, Leaderboard>
   Loserboard: Record<string, Leaderboard>
   Statistics: Statistics
   Configuration: Record<string, Configuration>

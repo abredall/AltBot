@@ -1,9 +1,9 @@
-import { leaderboards } from '../raiha';
+import { leaderboards } from '../altbot';
 import { Leaderboard, SortedLeaderboard } from './types';
 
 export function postRank(id: string, guild: string): string {
-  const { Native, Raiha, Loserboard } = leaderboards;
-  const [native, raiha, loser] = [Native, Raiha, Loserboard].map(leaderboardRecord => {
+  const { Native, AltBot, Loserboard } = leaderboards;
+  const [native, altbot, loser] = [Native, AltBot, Loserboard].map(leaderboardRecord => {
     const leaderboard = leaderboardRecord[guild];
     const value = leaderboard[id] ?? 0;
     return {
@@ -13,16 +13,16 @@ export function postRank(id: string, guild: string): string {
   })
   return `Leaderboard ranking for <@${id}>:\n` +
     `__**Native**__\n${native.rank ? `#${native.rank}` : 'Unranked'} with a count of ${native.value}.\n` +
-    `__**Raiha**__\n${raiha.rank ? `#${raiha.rank}` : 'Unranked'} with a count of ${raiha.value}.\n` +
+    `__**AltBot**__\n${altbot.rank ? `#${altbot.rank}` : 'Unranked'} with a count of ${altbot.value}.\n` +
     `__**Loserboard**__\n${loser.rank ? `#${loser.rank}` : 'Unranked'} with a count of ${loser.value}.`;
 }
 
 export function postLeaderboard(guild: string, page: number): { text: string, footer: string } {
-  const [nativeSorted, raihaSorted] = [sortLeaderboard(leaderboards.Native[guild]), sortLeaderboard(leaderboards.Raiha[guild])]
+  const [nativeSorted, altbotSorted] = [sortLeaderboard(leaderboards.Native[guild]), sortLeaderboard(leaderboards.AltBot[guild])]
   return {
     text: `__**Native**__\n${generateText(nativeSorted, 0, page, 5)}\n` +
-      `__**Raiha**__\n${generateText(raihaSorted, 0, page, 5)}`,
-    footer: `So far, Raiha has served ${leaderboards.Statistics.Requests} requests.`
+      `__**AltBot**__\n${generateText(altbotSorted, 0, page, 5)}`,
+    footer: `So far, AltBot has served ${leaderboards.Statistics.Requests} requests.`
   };
 }
 
