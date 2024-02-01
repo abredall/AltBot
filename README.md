@@ -118,4 +118,4 @@ Pull requests are always welcome.
 AltBot is licensed under LGPL v3.0.
 
 
-© 0224 abredall.
+©2024 abredall.
