@@ -24,20 +24,16 @@ AltBot will react to messages that are missing alt text. By default, the ❌ emo
 
 ### Leaderboards
 
-Why _not_ gamify accessibility? AltBot comes with three leaderboards:
+Why _not_ gamify accessibility? AltBot comes with two leaderboards:
 
 - **Native** - This leaderboard keeps track of the number of messages sent using Discord's built-in alt text feature
 - **AltBot** - This leaderboard keeps track of the number of AltBot reposts triggered
-- **Loserboard** - This leaderboard keeps track of the number of messages sent without alt text. Using AltBot to repost your own message will decrement this board.
-
-A bit more on the Loserboard: The loserboard can be configured to notify moderators in a mod channel when a user's Loserboard score reaches certain thresholds. What you do with this information is up to you. One suggestion: an Image Mute.
 
 ## User Settings
 
-There are several settings that users can set on themselves. Each user setting is a boolean value, either ON or OFF.
+Users can set whether to get reminders with a boolean value, either ON or OFF.
 
 - **Reminder** - Posts a mini-tutorial each time the user forgets to use alt text
-- **Activation Failure** - A meme setting; posts a gif when the user attempts to activate AltBot but fails
 
 ## Usage
 
